@@ -5,6 +5,8 @@ import { Send, Bot, User, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Message {
   id: string;
@@ -125,12 +127,41 @@ export default function ChatInterface({ filename }: ChatInterfaceProps) {
                 </div>
               )}
               <div className={cn(
-                "p-5 rounded-3xl text-[15px] leading-relaxed whitespace-pre-wrap overflow-auto max-w-full",
+                "p-5 rounded-3xl text-[15px] leading-relaxed overflow-auto max-w-full",
                 msg.role === "user" 
-                  ? "bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-[0_10px_30px_rgba(99,102,241,0.2)] rounded-br-sm"
+                  ? "bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-[0_10px_30px_rgba(99,102,241,0.2)] rounded-br-sm whitespace-pre-wrap"
                   : "bg-white/5 text-neutral-200 border border-white/10 rounded-bl-sm backdrop-blur-md"
               )}>
-                {msg.content}
+                {msg.role === "user" ? (
+                  msg.content
+                ) : (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({ children }) => <h1 className="text-xl font-bold text-white mb-3 mt-1 pb-1 border-b border-white/10">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-lg font-semibold text-indigo-300 mb-2 mt-3">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-base font-semibold text-purple-300 mb-1 mt-2">{children}</h3>,
+                      p: ({ children }) => <p className="mb-3 last:mb-0 text-neutral-200 leading-relaxed">{children}</p>,
+                      ul: ({ children }) => <ul className="mb-3 ml-4 space-y-1 list-none">{children}</ul>,
+                      ol: ({ children }) => <ol className="mb-3 ml-4 space-y-1 list-decimal list-inside">{children}</ol>,
+                      li: ({ children }) => <li className="flex items-start gap-2 text-neutral-200"><span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0"></span><span>{children}</span></li>,
+                      strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                      em: ({ children }) => <em className="text-indigo-200 italic">{children}</em>,
+                      code: ({ children }) => <code className="bg-black/40 text-emerald-300 text-sm px-1.5 py-0.5 rounded font-mono">{children}</code>,
+                      pre: ({ children }) => <pre className="bg-black/50 border border-white/10 text-emerald-300 text-sm p-4 rounded-xl mb-3 overflow-x-auto font-mono">{children}</pre>,
+                      table: ({ children }) => <div className="overflow-x-auto mb-3"><table className="w-full text-sm border-collapse border border-white/10 rounded-lg overflow-hidden">{children}</table></div>,
+                      thead: ({ children }) => <thead className="bg-indigo-500/20">{children}</thead>,
+                      th: ({ children }) => <th className="border border-white/10 px-3 py-2 text-left font-semibold text-indigo-200">{children}</th>,
+                      td: ({ children }) => <td className="border border-white/10 px-3 py-2 text-neutral-300">{children}</td>,
+                      tr: ({ children }) => <tr className="even:bg-white/5">{children}</tr>,
+                      blockquote: ({ children }) => <blockquote className="border-l-2 border-indigo-400 pl-4 my-3 text-neutral-400 italic">{children}</blockquote>,
+                      hr: () => <hr className="border-white/10 my-4" />,
+                      a: ({ children, href }) => <a href={href} className="text-indigo-400 hover:text-indigo-300 underline underline-offset-2" target="_blank">{children}</a>,
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
+                )}
               </div>
             </motion.div>
           ))}

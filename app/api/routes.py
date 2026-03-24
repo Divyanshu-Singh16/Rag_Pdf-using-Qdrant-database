@@ -41,13 +41,23 @@ def ask_question(question: str = Form(...)):
     if vector_store is None:
         return {"error": "No PDF uploaded yet"}
 
-    docs = vector_store.similarity_search(question)
+    # Increase k to retrieve more context ensuring nothing is missed
+    docs = vector_store.similarity_search(question, k=15)
 
     context = "\n".join([doc.page_content for doc in docs])
 
     prompt = f"""
-    Answer based on the context below:
+    You are an expert document assistant. Using the context below, answer the user's question.
 
+    FORMATTING RULES (follow strictly):
+    1. If the answer contains structured data such as bit positions, field definitions, register maps, specifications, or any data with columns (e.g. Field, Bit Position, Description) — ALWAYS present it as a proper Markdown table with | pipe | syntax.
+    2. Use bold (**text**) for key terms and section headers when not in a table.
+    3. Use bullet points for lists.
+    4. NEVER use asterisks (*) as plain text — only use them for bold (**) or italics (*).
+    5. Do NOT summarize, compress, or omit any information. Include ALL rows, ALL fields, and ALL descriptions exactly as they appear in the source.
+    6. After a table, add a short plain-English summary of the most important points.
+
+    Context:
     {context}
 
     Question: {question}
