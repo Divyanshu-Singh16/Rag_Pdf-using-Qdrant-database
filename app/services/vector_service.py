@@ -13,7 +13,7 @@ class QdrantWrapper:
         self.collection_name = collection_name
         self.embeddings = embeddings
         
-    def similarity_search(self, query, k=4):
+    def similarity_search(self, query, k=8):
         # Embed the query
         query_vector = self.embeddings.embed_query(query)
         
